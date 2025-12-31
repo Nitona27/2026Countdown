@@ -229,20 +229,79 @@
             color: rgba(255, 255, 255, 1);
         }
 
+        /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .year {
                 font-size: 80px;
-            }
-            .countdown-title {
-                font-size: 36px;
+                margin-bottom: 15px;
             }
             .time-value {
-                font-size: 36px;
-                min-width: 60px;
-                padding: 15px;
+                font-size: 32px;
+                min-width: 70px;
+                padding: 12px 8px;
             }
-            .countdown {
-                gap: 20px;
+            .time-label {
+                font-size: 13px;
+            }
+            .datetime-display {
+                gap: 15px;
+            }
+            .footer {
+                font-size: 10px;
+                padding: 12px 10px;
+            }
+            .firework {
+                width: 60px;
+                height: 60px;
+            }
+            .firework1, .firework2 {
+                top: 30px;
+            }
+            .firework1 {
+                left: 20px;
+            }
+            .firework2 {
+                right: 20px;
+            }
+            .firework3, .firework4 {
+                bottom: 80px;
+            }
+            .firework3 {
+                left: 30px;
+            }
+            .firework4 {
+                right: 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .year {
+                font-size: 60px;
+                letter-spacing: 5px;
+                margin-bottom: 10px;
+            }
+            .time-value {
+                font-size: 24px;
+                min-width: 55px;
+                padding: 10px 6px;
+            }
+            .time-label {
+                font-size: 11px;
+            }
+            .datetime-display {
+                gap: 10px;
+            }
+            .footer {
+                font-size: 9px;
+                padding: 10px 5px;
+                line-height: 1.4;
+            }
+            .test-button {
+                width: 12px;
+                height: 12px;
+                top: 15px;
+                right: 15px;
+                font-size: 7px;
             }
         }
     </style>
