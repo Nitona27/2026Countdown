@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Clock</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #0a0a0a, #1a1a2e);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 20px;
+        }
+
+        .year {
+            font-size: 120px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: 10px;
+        }
+
+        .datetime-display {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .time-value {
+            font-size: 48px;
+            font-weight: bold;
+            min-width: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .time-label {
+            font-size: 16px;
+            color: #b0b0b0;
+            text-transform: lowercase;
+        }
+
+        /* 花火のデコレーション */
+        .firework {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+        }
+
+        .firework1 {
+            top: 50px;
+            left: 100px;
+            animation: sparkle 2s infinite;
+        }
+
+        .firework2 {
+            top: 50px;
+            right: 100px;
+            animation: sparkle 2.5s infinite;
+        }
+
+        .firework3 {
+            bottom: 100px;
+            left: 150px;
+            animation: sparkle 3s infinite;
+        }
+
+        .firework4 {
+            bottom: 100px;
+            right: 150px;
+            animation: sparkle 2.2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* 星のデコレーション */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* 新年の花火エフェクト */
+        #fireworksContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .new-year-firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: explode 1.5s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(30);
+                opacity: 0;
+            }
+        }
+
+        .firework-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: particle-fly 2s ease-out forwards;
+        }
+
+        @keyframes particle-fly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* テストボタン */
+        .test-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+        }
+
+        .test-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .test-button:active {
+            transform: scale(0.95);
+        }
+
+        /* フッター */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 0;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            z-index: 100;
+            line-height: 1.6;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: rgba(255, 255, 255, 1);
+        }
+
+        @media (max-width: 768px) {
+            .year {
+                font-size: 80px;
+            }
+            .countdown-title {
+                font-size: 36px;
+            }
+            .time-value {
+                font-size: 36px;
+                min-width: 60px;
+                padding: 15px;
+            }
+            .countdown {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- テストボタン -->
+    <div class="test-button" id="testButton" title="花火テスト">🎆</div>
+    
+    <!-- フッター -->
+    <div class="footer">
+        © 二十七（にとな） <a href="https://x.com/Nitona27" target="_blank">@Nitona27</a><br>
+        バグ報告はXのDMへ / 配信利用等可
+    </div>
+    
+    <div class="stars" id="stars"></div>
+    
+    <!-- 花火のデコレーション -->
+    <div class="firework firework1">
+        <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="3" fill="#ffd700"/>
+            <line x1="50" y1="50" x2="50" y2="20" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="70" y2="30" stroke="#ff8c00" stroke-width="2"/>
+            <line x1="50" y1="50" x2="80" y2="50" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="70" y2="70" stroke="#ff8c00" stroke-width="2"/>
+            <line x1="50" y1="50" x2="50" y2="80" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="30" y2="70" stroke="#ff8c00" stroke-width="2"/>
+            <line x1="50" y1="50" x2="20" y2="50" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="30" y2="30" stroke="#ff8c00" stroke-width="2"/>
+        </svg>
+    </div>
+    
+    <div class="firework firework2">
+        <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="3" fill="#ffd700"/>
+            <line x1="50" y1="50" x2="50" y2="20" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="70" y2="30" stroke="#ff8c00" stroke-width="2"/>
+            <line x1="50" y1="50" x2="80" y2="50" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="70" y2="70" stroke="#ff8c00" stroke-width="2"/>
+            <line x1="50" y1="50" x2="50" y2="80" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="30" y2="70" stroke="#ff8c00" stroke-width="2"/>
+            <line x1="50" y1="50" x2="20" y2="50" stroke="#ffd700" stroke-width="2"/>
+            <line x1="50" y1="50" x2="30" y2="30" stroke="#ff8c00" stroke-width="2"/>
+        </svg>
+    </div>
+
+    <div class="firework firework3">
+        <svg viewBox="0 0 100 100">
+            <path d="M 50 30 L 50 50 L 30 50" stroke="#00bfff" stroke-width="3" fill="none"/>
+            <path d="M 50 30 L 50 50 L 70 50" stroke="#1e90ff" stroke-width="3" fill="none"/>
+            <path d="M 50 50 L 50 70" stroke="#00bfff" stroke-width="3"/>
+            <circle cx="50" cy="50" r="4" fill="#1e90ff"/>
+        </svg>
+    </div>
+
+    <div class="firework firework4">
+        <svg viewBox="0 0 100 100">
+            <path d="M 50 30 L 50 50 L 30 50" stroke="#00bfff" stroke-width="3" fill="none"/>
+            <path d="M 50 30 L 50 50 L 70 50" stroke="#1e90ff" stroke-width="3" fill="none"/>
+            <path d="M 50 50 L 50 70" stroke="#00bfff" stroke-width="3"/>
+            <circle cx="50" cy="50" r="4" fill="#1e90ff"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        <div class="year" id="currentYear"></div>
+        
+        <div class="datetime-display">
+            <div class="time-unit">
+                <div class="time-value" id="date">00/00</div>
+                <div class="time-label">date</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="hours">00</div>
+                <div class="time-label">hours</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="minutes">00</div>
+                <div class="time-label">minutes</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="seconds">00</div>
+                <div class="time-label">seconds</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新年の花火エフェクト用コンテナ -->
+    <div id="fireworksContainer"></div>
+
+    <script>
+        // 星を生成
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        // テストボタンのイベントリスナー
+        document.getElementById('testButton').addEventListener('click', function() {
+            launchNewYearFireworks();
+        });
+
+        let lastCheckedMinute = -1;
+        let fireworksShown = false;
+
+        function createFirework(x, y, color) {
+            const container = document.getElementById('fireworksContainer');
+            
+            // メインの爆発
+            const firework = document.createElement('div');
+            firework.className = 'new-year-firework';
+            firework.style.left = x + 'px';
+            firework.style.top = y + 'px';
+            firework.style.background = `radial-gradient(circle, ${color}, transparent)`;
+            container.appendChild(firework);
+            
+            // パーティクルを追加
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework-particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.backgroundColor = color;
+                
+                const angle = (Math.PI * 2 * i) / 30;
+                const distance = 100 + Math.random() * 100;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--tx', tx + 'px');
+                particle.style.setProperty('--ty', ty + 'px');
+                particle.style.animationDelay = Math.random() * 0.3 + 's';
+                
+                container.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 2300);
+            }
+            
+            setTimeout(() => firework.remove(), 1500);
+        }
+
+        function launchNewYearFireworks() {
+            const colors = ['#ffd700', '#ff8c00', '#ff1493', '#00bfff', '#7fff00', '#ff6347'];
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // 10秒間、ランダムに花火を打ち上げる
+            let count = 0;
+            const interval = setInterval(() => {
+                const x = Math.random() * windowWidth;
+                const y = Math.random() * (windowHeight * 0.7) + 50; // 上部70%
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                createFirework(x, y, color);
+                
+                count++;
+                if (count >= 30) { // 30発打ち上げたら終了
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        fireworksShown = false; // リセット（次の年越しのため）
+                    }, 60000); // 1分後にリセット
+                }
+            }, 300);
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            
+            // 現在の年を表示
+            document.getElementById('currentYear').textContent = now.getFullYear();
+            
+            // 現在の月/日、時間、分、秒を表示
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const second = now.getSeconds();
+            
+            document.getElementById('date').textContent = 
+                String(month).padStart(2, '0') + '/' + String(day).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hour).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minute).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(second).padStart(2, '0');
+            
+            // 新年チェック（1月1日 0時0分）
+            if (!fireworksShown && month === 1 && day === 1 && hour === 0 && minute === 0) {
+                if (lastCheckedMinute !== 0) {
+                    fireworksShown = true;
+                    launchNewYearFireworks();
+                }
+            }
+            
+            lastCheckedMinute = minute;
+        }
+        
+        // 初回実行
+        updateDateTime();
+        
+        // 1秒ごとに更新
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>
