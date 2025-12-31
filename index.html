@@ -29,18 +29,27 @@
             padding: 20px;
         }
 
-        .year {
-            font-size: 120px;
+        .current-date {
+            font-size: 48px;
             font-weight: bold;
-            margin-bottom: 10px;
-            letter-spacing: 10px;
+            margin-bottom: 30px;
+            letter-spacing: 3px;
         }
 
-        .datetime-display {
+        .current-time-display {
             display: flex;
             justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: nowrap;
+            margin-bottom: 15px;
+        }
+
+        .time-separator {
+            font-size: 48px;
+            font-weight: bold;
+            padding-top: 20px;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .time-unit {
@@ -63,6 +72,23 @@
             font-size: 16px;
             color: #b0b0b0;
             text-transform: lowercase;
+        }
+
+        .countdown-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .countdown-label {
+            font-weight: normal;
+        }
+
+        .countdown-value {
+            font-weight: normal;
         }
 
         /* 花火のデコレーション */
@@ -231,20 +257,23 @@
 
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
-            .year {
-                font-size: 80px;
-                margin-bottom: 15px;
+            .current-date {
+                font-size: 36px;
+                margin-bottom: 25px;
             }
             .time-value {
                 font-size: 32px;
                 min-width: 70px;
                 padding: 12px 8px;
             }
+            .time-separator {
+                font-size: 32px;
+            }
             .time-label {
                 font-size: 13px;
             }
-            .datetime-display {
-                gap: 15px;
+            .countdown-section {
+                font-size: 14px;
             }
             .footer {
                 font-size: 10px;
@@ -275,21 +304,29 @@
         }
 
         @media (max-width: 480px) {
-            .year {
-                font-size: 60px;
-                letter-spacing: 5px;
-                margin-bottom: 10px;
+            .current-date {
+                font-size: 28px;
+                margin-bottom: 20px;
+                letter-spacing: 2px;
             }
             .time-value {
-                font-size: 22px;
-                min-width: 50px;
+                font-size: 24px;
+                min-width: 55px;
                 padding: 8px 5px;
             }
-            .time-label {
-                font-size: 10px;
+            .time-separator {
+                font-size: 24px;
+                padding-top: 8px;
             }
-            .datetime-display {
-                gap: 8px;
+            .time-label {
+                font-size: 11px;
+            }
+            .current-time-display {
+                gap: 6px;
+                margin-bottom: 12px;
+            }
+            .countdown-section {
+                font-size: 12px;
             }
             .footer {
                 font-size: 9px;
@@ -306,36 +343,48 @@
         }
 
         @media (max-width: 390px) {
-            .year {
-                font-size: 55px;
+            .current-date {
+                font-size: 24px;
             }
             .time-value {
-                font-size: 20px;
-                min-width: 45px;
+                font-size: 22px;
+                min-width: 50px;
                 padding: 7px 4px;
             }
-            .time-label {
-                font-size: 9px;
+            .time-separator {
+                font-size: 22px;
             }
-            .datetime-display {
-                gap: 6px;
+            .time-label {
+                font-size: 10px;
+            }
+            .current-time-display {
+                gap: 5px;
+            }
+            .countdown-section {
+                font-size: 11px;
             }
         }
 
         @media (max-width: 360px) {
-            .year {
-                font-size: 50px;
+            .current-date {
+                font-size: 22px;
             }
             .time-value {
-                font-size: 18px;
-                min-width: 40px;
+                font-size: 20px;
+                min-width: 45px;
                 padding: 6px 3px;
             }
-            .time-label {
-                font-size: 8px;
+            .time-separator {
+                font-size: 20px;
             }
-            .datetime-display {
-                gap: 5px;
+            .time-label {
+                font-size: 9px;
+            }
+            .current-time-display {
+                gap: 4px;
+            }
+            .countdown-section {
+                font-size: 10px;
             }
         }
     </style>
@@ -400,25 +449,28 @@
     </div>
 
     <div class="container">
-        <div class="year" id="currentYear"></div>
+        <div class="current-date" id="currentDate">2025/12/31</div>
         
-        <div class="datetime-display">
-            <div class="time-unit">
-                <div class="time-value" id="date">00/00</div>
-                <div class="time-label">date</div>
-            </div>
+        <div class="current-time-display">
             <div class="time-unit">
                 <div class="time-value" id="hours">00</div>
                 <div class="time-label">hours</div>
             </div>
+            <div class="time-separator">:</div>
             <div class="time-unit">
                 <div class="time-value" id="minutes">00</div>
                 <div class="time-label">minutes</div>
             </div>
+            <div class="time-separator">:</div>
             <div class="time-unit">
                 <div class="time-value" id="seconds">00</div>
                 <div class="time-label">seconds</div>
             </div>
+        </div>
+        
+        <div class="countdown-section">
+            <div class="countdown-label">残り</div>
+            <div class="countdown-value" id="countdown">00:00:00</div>
         </div>
     </div>
 
@@ -512,24 +564,54 @@
         function updateDateTime() {
             const now = new Date();
             
-            // 現在の年を表示
-            document.getElementById('currentYear').textContent = now.getFullYear();
+            // 現在の日付を表示（年/月/日）
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            document.getElementById('currentDate').textContent = `${year}/${month}/${day}`;
             
-            // 現在の月/日、時間、分、秒を表示
-            const month = now.getMonth() + 1;
-            const day = now.getDate();
+            // 現在の時刻を表示
             const hour = now.getHours();
             const minute = now.getMinutes();
             const second = now.getSeconds();
             
-            document.getElementById('date').textContent = 
-                String(month).padStart(2, '0') + '/' + String(day).padStart(2, '0');
             document.getElementById('hours').textContent = String(hour).padStart(2, '0');
             document.getElementById('minutes').textContent = String(minute).padStart(2, '0');
             document.getElementById('seconds').textContent = String(second).padStart(2, '0');
             
+            // 次の年の1月1日0時0分0秒までのカウントダウン
+            const nextYear = now.getFullYear() + 1;
+            const targetDate = new Date(nextYear, 0, 1, 0, 0, 0);
+            
+            const diff = targetDate - now;
+            
+            if (diff <= 0) {
+                document.getElementById('countdown').textContent = '00:00:00';
+                return;
+            }
+            
+            // 残り時間を計算
+            const totalSeconds = Math.floor(diff / 1000);
+            const totalMinutes = Math.floor(totalSeconds / 60);
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalDays = Math.floor(totalHours / 24);
+            
+            const remainingHours = totalHours % 24;
+            const remainingMinutes = totalMinutes % 60;
+            const remainingSeconds = totalSeconds % 60;
+            
+            // 残り日数が0より大きい場合は「日数/時間:分:秒」形式
+            if (totalDays > 0) {
+                document.getElementById('countdown').textContent = 
+                    `${totalDays}/${String(remainingHours).padStart(2, '0')}:${String(remainingMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+            } else {
+                // 残り日数が0の場合は「時間:分:秒」形式
+                document.getElementById('countdown').textContent = 
+                    `${String(remainingHours).padStart(2, '0')}:${String(remainingMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+            }
+            
             // 新年チェック（1月1日 0時0分）
-            if (!fireworksShown && month === 1 && day === 1 && hour === 0 && minute === 0) {
+            if (!fireworksShown && month === '01' && day === '01' && hour === 0 && minute === 0) {
                 if (lastCheckedMinute !== 0) {
                     fireworksShown = true;
                     launchNewYearFireworks();
